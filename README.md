@@ -114,5 +114,5 @@ Output:
 * The variable is assigned the computed value, replacing the prior value of that variable.
 
 ## How to compile and run program:
-1) run in terminal: make
-2) run in terminal: ./bin/main
+1) run in terminal: ``` make```
+2) run in terminal: ```./bin/main```
