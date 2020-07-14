@@ -1,84 +1,120 @@
-enum OPERATOR {
-	LBRACKET, RBRACKET,
-	ASSIGN,
-	OR,
-	AND,
-	BITOR,
-	XOR,
-	BITAND,
-	EQ, NEQ,
-	LEQ, LT,
-	GEQ, GT,
-	SHL, SHR,
-	PLUS, MINUS,
-	MULT, DIV, MOD
+#ifndef __GLOBALS_H__
+#define __GLOBALS_H__
+#include <iostream>
+#include <cstring>
+#include <bits/stdc++.h>    
+
+enum LEXEM_TYPES {
+    NUMBER,
+    VARIABLE,
+    OPER
 };
+
+enum OPERATOR {
+    COMMA, SQUARELBRACKET, SQUARERBRACKET, IF, THEN, ELSE, ENDIF, WHILE, ENDWHILE,
+    LBRACKET, RBRACKET, ASSIGN, COLON,
+    OR, AND, BITOR, XOR, BITAND, EQ, NEQ, LEQ, LT, GEQ, GT, SHL, SHR, MOD,
+    PLUS , MINUS,
+    MULT, DIV,
+    PRINT, GOTO
+};
+
+//This is used for determine what type of operator we have. 
+extern int PRIORITY[35];
+
+extern OPERATOR LVALUED[10];
+
+extern std::string OPERTEXT[34];
+
+//This is used for parsing string on lexems. If we find substring in this array - we find an operator!. 
+//this maps used for determine tables of rows, maps and arrays respectively
+extern std::map<std::string, int> labels;
+extern std::map<std::string, int> Vtable;
+extern std::map<std::string, std::vector<int>> Atable;
+
+#endif
+//this is the main interface of the program.
+//This devided on operators, numbers and variables
+
+
+#ifndef __CCLASS_H__
+#define __CCLASS_H__
 
 class Lexem {
-  public:
-  	Lexem();
-  	virtual void print() {}
-  	virtual TYPE get_type() = 0;
+public: 
+    Lexem();
+    virtual void print () = 0;
+    virtual LEXEM_TYPES check_type () = 0;
+    virtual int getValue() = 0;  //comment for the functionx
 };
 
+class Pointer : public Lexem {
+public:
+    virtual void setValue(int num) = 0;
+};
+
+//This is variable that has name. With name we can get a variable located in Vtable.
+class Variable : public Pointer {
+public:
+    std::string name;
+    Variable (std::string rename);
+    int getValue();
+    void setValue (int num);
+    void print();
+    std::string getName();
+    LEXEM_TYPES check_type ();
+    bool inLabelTable();
+};
+
+//this class provided numbers work
 class Number : public Lexem {
-	int value;
-  public:
-  	Number();
-  	Number(int);
-  	int get_value();
-  	void print();
-  	TYPE get_type();
+    int value;
+public:
+    Number ( int num );
+    int getValue ();
+    void print ();
+    LEXEM_TYPES check_type ();
 };
 
-class Oper : public Lexem {
-	OPERATOR opertype;
-  public:
-  	Oper();
-  	Oper(std::string);
-  	TYPE get_type();
-  	void print();
-  	int get_priority();
-  	OPERATOR get_oper_type();
+//this class provided operators work.
+//There is getValue() function that inmplement appropriate operations
+//Also, there is getPriority() that returns approprate priority from PRIORITY[]. 
+class Oper : public Pointer {
+public:
+    OPERATOR opertype;
+    Oper (int op);
+    OPERATOR getType();
+    void print();
+    int getValue();
+    void setValue(int num);
+    int getValue(Lexem *operand1, Lexem *operand2);
+    int getValue(Lexem *operand);
+    LEXEM_TYPES check_type();
+    int getPriority();
 };
 
-class Variable: public Lexem {
-	int _value;
-	std::string _name;
-  public:
-  	Variable();
-  	Variable(std::string name);
-  	Variable(std::string name, int value);
-  	TYPE get_type();
-  	void set_value(int value);
-  	std::string get_name();
-  	void print();
+//This class provided goto works.
+class Goto : public Oper {
+    int row;
+public:
+    enum { UNDEFINED = -INT32_MAX };
+    Goto(OPERATOR optype);
+    void setRow (std::string name);
+    void setRow (int row);
+    int getRow ();
+    void print();
 };
 
-PREFIXTYPE get_prefix_type(std::string &);
-void fill_label_map(std::vector<PREFIXTYPE>);
-void print_vector(std::vector<Lexem *>);
-void print_vars();
-void exec_code(std::vector<std::vector<Lexem *>>, std::vector<PREFIXTYPE>);
+#endif
 
-void print_vector(std::vector <Lexem *> &v);
-void print_var_table();
-void print_stack(std::stack<Lexem *> & old_st);
+#ifndef __FUNCS_H__
+#define __FUNCS_H__
 
-bool is_white_space(char ch);
-bool is_digit(char ch);
-bool is_operation(std::string op);
-bool is_symbol(char ch);
-
-void make_number(std::vector<Lexem *> &infix, std::string &codeline, int & i);
-void make_word(std::vector<Lexem *> &infix, std::string &codeline, int &i);
-
-std::string get_string(char ch);
-
-std::vector<Lexem *> parse_lexem(std::string codeline);
-std::vector<Lexem *> build_postfix(std::vector<Lexem *> infix);
-Lexem *perform_evaluatable_operation(Lexem *leftValue, Lexem *rightValue, OPERATOR opertype);
-Lexem *perform_assign_operation(Lexem *left, Lexem *right);
-int evaluate_postfix(std::vector<Lexem *> postfix);
-
+void initLabels (std::vector <Lexem *> &, int);
+std::vector<Lexem *> parseLexem (std::string);
+void GoinGotoAndLabel (Variable , std::stack<Oper *>);
+void initJumps (std::vector < std::vector <Lexem *> >);
+std::vector <Lexem *> buildPostfix (std::vector <Lexem *>);
+int evaluatePostfix (std::vector <Lexem *>, int, bool);
+bool realTime (std::vector <Lexem *> &);
 #endif
