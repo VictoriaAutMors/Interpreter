@@ -1,17 +1,23 @@
 # Interpreter
 Interpreter implementation in C++ language
-## What is Interpreter:
+
+## Features
+* [Definition of Interpreter](#def)
+* [Arithmetic operations](#math)
+* [Bitwise operations](#bit)
+* [Assignment](#assign)
+* [conditions](#if)
+* [cycles](#while)
+* [Dependencies](#dependencies)
+* [How to run programs](#run)
+
+# <a name="def"></a> Definition of Interpreter:
 An interpreter is a computer program that directly executes instructions written in a programming or scripting language, without requiring them previously to have been compiled into a machine language program.
 
 An interpreter generally uses one of the following strategies for program execution:
 1) Parse the source code and perform its behavior directly;
 2) Translate source code into some efficient intermediate representation and immediately execute this;
 3) Explicitly execute stored precompiled code made by a compiler which is part of the interpreter system. 
-
-## Features
-1) [Arithmetic operations](#math)
-2) [Bitwise operations](#bit)
-3) [Assignment](#assign)
 
 # <a name="math"></a> Arithmetic operations
 
@@ -108,11 +114,74 @@ Output:
 
 **An assignment** statement sets and/or re-sets the value stored in the storage location(s) denoted by a variable name; in other words, it copies a value into the variable.
 
-**Variables** are containers for values. It is possible to put a value into a variable and later replace it with a new one. An assignment operation modifies the current state of the executing program. Consequently, assignment is dependent on the concept of variables. In an assignment:
+**Variables** 
 
-* The expression is evaluated in the current state of the program.
-* The variable is assigned the computed value, replacing the prior value of that variable.
+It can allocates memory for variables and assign them to rvalue or lvalue. 
+Variables contains letters of latin alphabet.
+Example:
 
-## How to compile and run program:
+```     
+    x:= 2
+    y := x
+    print y
+```  
+
+The result of the program:
+```    
+2
+```
+# <a name="if"></a> conditions
+
+You can use conditions with lexem "if". When you wrote "if" you must must write the condition.
+When you had written the condition you must write "then" and after that, wrote the piece of code that executed when that condition is true. 
+Also, you can write "else" when you want describe the piece of code that executed when that condition is false.
+
+Example:
+
+```  
+    x := 1
+    if x == 1 then
+      x := x + 1
+      print x
+    else 
+      x := x + 2
+      print x
+```
+
+The result of the program:
+```
+    2
+```
+
+# <a name="while"></a> Cycles
+
+You can use cycles with "while" lexem. It had been executing a bit of code that wrapped into begin and end of "while".
+The begin of "while" marked as then.
+Then end of "while" marked as endwhile.
+
+Example:
+
+```  
+    i:=0
+    while i < 6 then
+      i:=i+1
+    print i
+```
+
+The result of the program:
+```
+ 6
+```
+# <a name="dependencies"></a> Dependencies
+
+**Debian/Ubuntu/Mint**
+
+``` sudo apt-get install g++```
+
+**Fedora/CentOS**
+
+```sudo dnf install g++```
+
+# <a name="run"></a>How to compile and run program:
 1) run in terminal: ``` make```
 2) run in terminal: ```./bin/main```
