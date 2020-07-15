@@ -11,12 +11,12 @@ enum LEXEM_TYPES {
 };
 
 enum OPERATOR {
-    COMMA, SQUARELBRACKET, SQUARERBRACKET, IF, THEN, ELSE, ENDIF, WHILE, ENDWHILE,
+    COMMA ,ARRAY, SQUARELBRACKET, SQUARERBRACKET, IF, THEN, ELSE, ENDIF, WHILE, ENDWHILE,
     LBRACKET, RBRACKET, ASSIGN, COLON,
     OR, AND, BITOR, XOR, BITAND, EQ, NEQ, LEQ, LT, GEQ, GT, SHL, SHR, MOD,
     PLUS , MINUS,
     MULT, DIV,
-    PRINT, GOTO
+    PRINT, GOTO, ARRAY_REAL
 };
 
 //This is used for determine what type of operator we have. 
@@ -105,16 +105,32 @@ public:
     void print();
 };
 
+
+//this class provided arrays work.
+class Array : public Oper {
+    std::string name;
+    int index = 0;
+public:
+    void setIndex(int i);
+    int getValue ();
+    void setValue(int num);
+    Array (std::string name);
+    void print ();
+};
+
 #endif
 
 #ifndef __FUNCS_H__
 #define __FUNCS_H__
 
+bool inArray (std::string);
+void initArrays (std::vector <Lexem *> &, int);
 void initLabels (std::vector <Lexem *> &, int);
 std::vector<Lexem *> parseLexem (std::string);
 void GoinGotoAndLabel (Variable , std::stack<Oper *>);
 void initJumps (std::vector < std::vector <Lexem *> >);
 std::vector <Lexem *> buildPostfix (std::vector <Lexem *>);
 int evaluatePostfix (std::vector <Lexem *>, int, bool);
-bool realTime (std::vector <Lexem *> &);
+bool realTime (std::vector <Lexem *> &); 
+void addArray (std::string name, int len);
 #endif

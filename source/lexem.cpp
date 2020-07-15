@@ -16,17 +16,8 @@ int main (void) {
         }
         infixLines.push_back(parseLexem(codeline));
         initLabels(infixLines[row], row);
-    /*cout << "INFIX" << endl;
-    for (int row = 0; row < (int)infixLines.size(); ++row) {    
-        for(auto elem: infixLines[row]) {
-            if (elem != NULL) {
-                elem->print();
-            }            
-        }
-        cout << endl;
-    }*/
+        initArrays(infixLines[row], row);
         initJumps(infixLines);
-
         postfixLines.push_back(buildPostfix(infixLines[row]));
         bool rvalue = realTime(postfixLines[row]);
         if (!rvalue) {

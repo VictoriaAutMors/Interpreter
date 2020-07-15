@@ -12,7 +12,7 @@ using std::stack;
 //This priority of operators in OPERATOR
 //This is used for parsing string on lexesms. If we find substring in this array - we find an operator!. 
 std::string OPERTEXT [34] = {
-    ",", "[", "]","if", "then", "else", "endif", "while", "endwhile",
+    ",", "array", "[", "]","if", "then", "else", "endif", "while", "endwhile",
     "(", ")", ":=", ":",
     "or", "and", "|", "^", "&", "==", "!=", "<=", "<", ">=", ">", "<<", ">>", "%",
     "+" , "-" ,
@@ -201,6 +201,96 @@ void Goto::print() {
 }
 
 
+//this class provided arrays work.
+void Array::setIndex(int i) {
+    Array::index = i; 
+}
+int Array::getValue () {
+    return Atable[name][index];
+}
+void Array::setValue(int num) {
+    Atable[name][index] = num;
+}
+Array::Array (string name): Oper{35} {
+    opertype = ARRAY_REAL;
+    Array::name = name;   
+}
+void Array::print () {
+    cout << name;
+}
+
+
+//this function provided check availability of array with current name in Atable.
+bool inArray (std::string name) {
+    if (Atable.find(name) != Atable.end()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+//this function create new array in array table 
+void addArray (string name, int len) {
+    Atable[name] = vector<int>(len);
+}
+
+//this function provided intialization of arrays.
+void initArrays (vector <Lexem *> &infix, int row) {
+    int start_index = 0;
+    while (infix[start_index] == NULL) {
+        start_index++;
+    }
+    if (infix[start_index]->check_type() == OPER && ((Oper *)infix[start_index])->getType() == ARRAY) { //this provided appeal of the arrays  
+        infix[start_index] = nullptr;
+        for (int i = 4 + start_index; i < (int)infix.size(); i++) {
+            cout << i << endl;
+            if (    infix[i - 1] == NULL && infix[i - 2] == NULL && infix[i - 3] == NULL && 
+                    (infix[i]->check_type() == OPER && ((Oper *)infix[i])->getType() == COMMA)) {
+                infix[i] = nullptr;
+                cout << "COMMA" << endl;
+                continue;
+            }
+            if (infix[i]->check_type() != OPER && (infix[i - 1] != NULL || infix[i - 2] != NULL || infix[i - 3] != NULL)) {
+                continue;
+            }
+            if (infix[i]->check_type() == OPER && 
+            (   infix[i - 1]->check_type() == NUMBER || infix[i - 1]->check_type() == VARIABLE) && 
+                infix[i - 2]->check_type() == OPER && infix[i - 3]->check_type() == VARIABLE) {
+                    if (((Oper *)infix[i])->getType() == SQUARERBRACKET && ((Oper *)infix[i - 2])->getType() == SQUARELBRACKET) {
+                        addArray(((Variable *)infix[i - 3])->getName(), ((Number *)infix[i - 1])->getValue());
+                        infix[i] = nullptr;
+                        infix[i - 1] = nullptr;
+                        infix[i - 2] = nullptr;
+                        infix[i - 3] = nullptr;
+                    }
+                    else {
+                        infix[i] == nullptr;
+                    }
+            } else {
+                infix[i] = nullptr;
+                continue;
+            }
+        }
+    } else { //this provided intizalization of the arrays with operator "array"
+        for (int i = 3 + start_index; i < (int)infix.size(); i++) {
+            if (infix[i]->check_type() == OPER && 
+            (   infix[i - 1]->check_type() == NUMBER || infix[i - 1]->check_type() == VARIABLE) && 
+                infix[i - 2]->check_type() == OPER && infix[i - 3]->check_type() == VARIABLE) {
+                    if (((Oper *)infix[i])->getType() == SQUARERBRACKET && ((Oper *)infix[i - 2])->getType() == SQUARELBRACKET) {
+                        string name = ((Variable *)infix[i - 3])->getName();
+                        if (inArray(name)) {
+                            infix[i - 3] = new Array(name);
+                        } else {
+                            perror("You don't define Array on the row:");
+                            cout << row << endl;
+                            perror("Please define this with 'array' operator.");
+                            exit(1);
+                        }
+                    }
+            }
+        }
+    }
+}
 void initLabels ( std::vector <Lexem *> &infix , int row ) {
     for (int i = 1; i < (int)infix.size (); i++) {
         if (    (infix[i - 1]->check_type() == VARIABLE) &&
@@ -209,6 +299,8 @@ void initLabels ( std::vector <Lexem *> &infix , int row ) {
             Oper * lexemop = ( Oper *) infix[i];
             if (lexemop->getType() == COLON) {
                 labels[lexemvar->getName()] = row;
+                //delete infix [i - 1];
+                //delete infix [i];
                 infix [i - 1] = nullptr ;
                 infix [i] = nullptr ;
                 i++;
@@ -260,7 +352,7 @@ vector<Lexem *> parseLexem (string row) {
                 i--;
             }  else if (row[i] == ' ') {
                 continue;
-            } else if (isalpha(row[i])) {//this piece of code provided variables parsing
+            } else if (isalpha(row[i])) {//this piece of code provided variables parsing(alse used for arrays)
                 while (i != row.size() && isalpha(row[i])) {
                     current_string += row[i];
                     i++;
@@ -342,7 +434,13 @@ vector <Lexem *> buildPostfix (vector <Lexem *>  infix) {
         } else if (elem->check_type() == OPER) {
             if (operators.empty()) {
                 operators.push((Oper *)elem);
+            } else if (((Oper *)elem)->getType() == ARRAY_REAL) {
+                operators.push((Array *)elem);
             } else if (((Oper *)elem)->getType() == SQUARERBRACKET) {
+                while(((Oper *)operators.top())->getType() != ARRAY_REAL) {
+                        postfix.push_back(operators.top());
+                        operators.pop();
+                }
                 postfix.push_back(operators.top());
                 operators.pop();
             } else if (((Oper  *)elem)->getType() == SQUARELBRACKET) {
@@ -357,7 +455,7 @@ vector <Lexem *> buildPostfix (vector <Lexem *>  infix) {
                         operators.pop();
                 }
                 operators.pop();
-            } else if (((((Oper *)elem)->getType() == LBRACKET) || 
+            } else if (     ((((Oper *)elem)->getType() == LBRACKET) || 
                             operators.top()->getPriority() <= ((Oper *)elem)->getPriority())) { 
                 operators.push ((Oper *)elem);
             } else {
@@ -402,6 +500,11 @@ int evaluatePostfix (vector <Lexem *> postfix, int row, bool rvalue) {
                 lexemop->getType() == ENDWHILE) {
                 Goto *lexemgoto = (Goto *)lexemop;
                 return lexemgoto->getRow();
+            } else if (lexemop->getType() == ARRAY_REAL) {
+                Lexem *top = (Array *)lexemop;
+                ((Array *)lexemop)->setIndex(numbers.top()->getValue());
+                numbers.pop();
+                numbers.push(top);
             } else if (lexemop->getType() == THEN) {
                 continue;
             }else if (lexemop->getType() == IF || lexemop->getType() == WHILE) {
