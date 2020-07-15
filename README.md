@@ -7,7 +7,6 @@ Interpreter implementation in C++ language
 * [Bitwise operations](#bit)
 * [Assignment](#assign)
 * [conditions](#if)
-* [cycles](#while)
 * [Dependencies](#dependencies)
 * [How to run programs](#run)
 
@@ -151,26 +150,6 @@ Example:
 The result of the program:
 ```
     2
-```
-
-# <a name="while"></a> Cycles
-
-You can use cycles with "while" lexem. It had been executing a bit of code that wrapped into begin and end of "while".
-The begin of "while" marked as then.
-Then end of "while" marked as endwhile.
-
-Example:
-
-```  
-    i:=0
-    while i < 6 then
-      i:=i+1
-    print i
-```
-
-The result of the program:
-```
- 6
 ```
 # <a name="dependencies"></a> Dependencies
 
